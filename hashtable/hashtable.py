@@ -11,7 +11,11 @@ class HashTableEntry:
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
-
+#Linked List
+class LinkedList:
+    def __init__(self):
+        self.head = None
+                                 
 
 class HashTable:
     """
@@ -24,7 +28,7 @@ class HashTable:
     def __init__(self, capacity=MIN_CAPACITY):
         # Your code here
         self.capacity = capacity
-        self.data = [None] * capacity
+        self.data = [LinkedList()] * capacity
         self.count = 0
 
     def get_num_slots(self):
@@ -49,7 +53,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        #return the number of records divided by the size of list
+        #return the number of items in hash table divided by the total number of slots
         return self.count / self.capacity
 
     def fnv1(self, key):
@@ -72,12 +76,12 @@ class HashTable:
         hash = 5381
         for c in key:
             hash = (hash * 33) + ord(c)
-        return hash
+        return hash 
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
-        between within the storage capacity of the hash table.
+        between within the data capacity of the hash table.
         """
         
         # return self.fnv1(key) % self.capacity
@@ -92,18 +96,25 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        #insert the function call and make it equal to the value
+        #find index in the hash table for the key
         index = self.hash_index(key)
-        #New Linked List Item 
-        hast = HashTableEntry(key,value)
-        #get the position
-        value = self.data[index]
-        #check if there is a value at the index. If true move onto next one
-        if value is not None:
-            self.data[index] = hast
-            self.data[index].next = value
+        #if Linked List is empty
+        if self.data[index].head == None:
+            #insert value at head
+            self.data[index].head = HashTableEntry(key, value)
+            #increase count
+            self.count += 1
+            return
         else:
-            self.data[index] = hast    
+            #if its not empty - current is head
+            curr = self.data[index].head
+            while curr.next:
+                if curr.key == key:
+                    curr.value = value
+                curr = curr.next
+            #insert at the next available slot    
+            curr.next = HashTableEntry(key,value)
+            self.count += 1            
 
     def delete(self, key):
         """
@@ -115,18 +126,19 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        node = self.data[index]
-        prev = None
-        if node.key == key:
-            self.data[index] = node.next
+        curr = self.data[index].head
+        # prev = None
+        if curr.key == key:
+            self.data[index].head = self.data[index].head.next
+            self.count -= 1
             return
-        while node.key != None:
-            if node.key == key:
-                prev.next = node.next
-                self.data[index].next = None
-                return
-            prev = node
-            node = node.next
+        while curr.key != None:
+            if curr.key == key:
+                prev.next = curr.next
+                self.count -= 1
+                return None
+            prev = curr
+            curr = curr.next
         return    
  
             
@@ -141,13 +153,22 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        node = self.data[index]
-        if node is not None:
-            while node:
-                if node.key == key:
-                    return node.value
-                node = node.next
-        return node           
+        curr = self.data[index].head
+        if curr == None:
+            return None
+        if curr.key == key:
+            return curr.value
+        while curr.next:
+            curr = curr.next
+            if curr.key == key:
+                return curr.value
+        return None            
+        # if curr is not None:
+        #     while curr:
+        #         if curr.key == key:
+        #             return curr.value
+        #         curr = curr.next
+        # return            
 
     def resize(self, new_capacity):
         """
@@ -157,7 +178,29 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        #make a new array with double the capacity of the old one
+        #refere the hash table to the new array
+        #itarate through the old array and put them in the new one
+        # if len(self.data) > self.capacity:
+        #     self.capacity = new_capacity
+        self.capacity = new_capacity
+        new_arr = [LinkedList()] * new_capacity
+
+        for i in self.data:
+            curr = i.head
+
+            while curr is not None:
+                index = self.hash_index(curr.key)
+
+                if new_arr[index].head == None:
+                    new_arr[index].head = HashTableEntry(curr.key, curr.value)
+                else:
+                    new_node = HashTableEntry(curr.key, curr.value)
+                    new_node.next = new_arr[index].head
+
+                    new_arr[index].head = new_node
+                curr = curr.next
+        self.data = new_arr                
 
 
 if __name__ == "__main__":
