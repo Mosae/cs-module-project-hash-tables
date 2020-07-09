@@ -114,7 +114,10 @@ class HashTable:
                 curr = curr.next
             #insert at the next available slot    
             curr.next = HashTableEntry(key,value)
-            self.count += 1            
+            self.count += 1  
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity*2)
+
 
     def delete(self, key):
         """
@@ -131,7 +134,7 @@ class HashTable:
         if curr.key == key:
             self.data[index].head = self.data[index].head.next
             self.count -= 1
-            return
+            return 
         while curr.key != None:
             if curr.key == key:
                 prev.next = curr.next
@@ -139,7 +142,7 @@ class HashTable:
                 return None
             prev = curr
             curr = curr.next
-        return    
+        return None  
  
             
 
