@@ -1,5 +1,19 @@
 def no_dups(s):
     # Your code here
+    #store the values
+    cache = {}
+    new_arr = []
+    #loop through strings
+    for word in s.split():
+
+        if word not in cache:
+            cache[word] = 1
+            new_arr.append(word)
+            #join empty/extra spaces between words
+    return ' '.join(new_arr)       
+        
+        
+    
 
 
 
